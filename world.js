@@ -246,7 +246,17 @@ function doLook(user) {
 }
 
 addGlobalVerb(['look', 'l'], function(parseResult, directObject, user) {
-	doLook(user);
+	if(directObject){
+
+		place = user.parent.connections[directObject.id];
+
+		if(place)
+			user.send('You see: '+place.desc);
+		else
+			user.send(directObject.description());
+	}else{
+		doLook(user);
+	}
 });
 
 
