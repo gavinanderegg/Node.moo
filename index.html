@@ -34,7 +34,11 @@
 				<input type="submit" value="Send" />
 
 			</form>
-
+			
+			<form action="/send/" id="editorForm" style="display: none">
+				<textarea id="editor" name="editor"></textarea>
+				<input type="submit" value="Send" />
+			</form>
 		</div>
 
 	</div>
@@ -55,8 +59,6 @@
 			socket = io.connect('http://localhost:3000');
 			
 			socket.on('newuser', function (data){
-				console.log('------- Connected!');
-				
 				if (data == 'connected') {
 					signedin = true;
 					$('#userInput').attr('placeholder', 'Enter a Command...');
@@ -64,8 +66,31 @@
 				}
 			});
 			
+			socket.on('edit', function(data) {
+				console.log('got there');
+				
+				$('#editorForm').fadeIn();
+			});
+			
+			$('form#editorForm').on('submit', function() {
+				var editText = $('#editor').val();
+				
+				if (editText) {
+					socket.emit('edit', editText);
+					
+					socket.on('editSuccess', function(data) {
+						$('#editorForm').fadeOut();
+					});
+				}
+				
+				return false;
+			});
+			
 			socket.on('message', function (data){
 				$('#log').append('<br/>'+data);
+				var log = document.getElementById("log");
+				log.scrollTop = log.scrollHeight;
+				console.log(log.scrollHeight);
 			});
 		}
 
@@ -85,6 +110,8 @@
 
 							var log = document.getElementById("log");
 							log.scrollTop = log.scrollHeight;
+							console.log(log.scrollHeight);
+
 							socket.emit('message', message);
 						}
 					}else{
@@ -115,6 +142,7 @@
 			});
 
 		});
+
 
 	</script>
 
