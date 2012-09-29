@@ -61,14 +61,22 @@ Thing.prototype.setVerbHandler = function(name, handler) {
 };
 
 Thing.prototype.description = function() {
-	return this.verboseName();
+	var description;
+	
+	if (this.desc) {
+		description = this.desc;
+	} else {
+		description = this.verboseName();
+	}
+	
+	return description;
 };
 
 Thing.prototype.send = function(text) {
 	if(this.socket) {
 		this.socket.emit('message', text);
 	}
-}
+};
 
 Thing.prototype.sendToOthers = function(text) {
 	var that = this;
@@ -166,7 +174,11 @@ addGlobalVerb('say', function(parseResult, directObject, user) {
 });
 
 addGlobalVerb('look', function(parseResult, directObject, user) {
-	user.send("You look around");
+	var place = user.parent;
+	
+	user.send(place.desc);
+	user.send('Also here:');
+	user.send(place.contents());
 });
 
 addGlobalVerb('inspect', function(parseResult, directObject, user) {
