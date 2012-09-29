@@ -48,7 +48,7 @@ Thing.prototype.verboseName = function() {
 
 Thing.prototype.simpleName = function() {
 	return this.names[0];
-}
+};
 
 Thing.prototype.contents = function() {
 	var that = this;
@@ -85,7 +85,7 @@ Thing.prototype.sendToOthers = function(text) {
 			other.send(text);
 		}
 	});
-}
+};
 
 var theRoom = new Thing(['house'], ['']);
 var apple = new Thing(['apple'], ['red']);
@@ -178,7 +178,14 @@ addGlobalVerb('look', function(parseResult, directObject, user) {
 	
 	user.send(place.desc);
 	user.send('Also here:');
-	user.send(place.contents());
+	
+	var objList = '';
+	_.each(place.contents(), function(i) {
+		objList += i.simpleName() + ', ';
+	});
+	objList = objList.slice(0, objList.length -3);
+	
+	user.send(objList);
 });
 
 
@@ -195,6 +202,15 @@ addGlobalVerb('inspect', function(parseResult, directObject, user) {
 		user.send("Inspect what?");
 	} else {
 		user.send(directObject.description());
+	}
+});
+
+addGlobalVerb('describe', function(parseResult, directObject, user) {
+	if (!directObject) {
+		user.send("Describe what?");
+	} else {
+		directObject.desc = parseResult;
+		user.send("You described " + directObject.name + " as " + parseResult);
 	}
 });
 
