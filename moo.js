@@ -6,6 +6,7 @@ var underscore = require('underscore');
 var fs = require('fs');
 var io = require('socket.io');
 
+
 server = http.createServer(function(request, response) {
 	fs.readFile(__dirname + '/index.html', function (err, html) {
 		if (err) {
@@ -21,8 +22,7 @@ server = http.createServer(function(request, response) {
 io = io.listen(server);
 
 io.sockets.on('connection', function (socket) {
-	socket.emit('news', { hello: 'world' });
-	socket.on('my other event', function (data) {
-		console.log(data);
+	socket.on('message', function (data) {
+		socket.emit('message', data);
 	});
 });
