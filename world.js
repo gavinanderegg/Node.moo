@@ -79,22 +79,31 @@ function matchingThings(room, phrase) {
 	return result;
 }
 
+function findThing(room, phrase, reply) {
+	var things = matchingThings(theRoom, phrase);
+	if (things.length == 0) {
+		reply("I don't see any " + formatNounPhrase(phrase));
+		return false;
+	} else if (things.length > 1) {
+		reply("There are several. Please be more specific.");
+		_.each(things, function(o) {
+			reply(" * " + o.verboseName());
+		});
+		return false;
+	} else {
+		var thing = things[0];
+		return thing;
+	}
+}
+
 exports.handle = function(data, reply) {
 	parse.parse(data, function(error, parseResult) {
 		if(error) {
 			reply("error: " + error);
 		} else {
 			if (parseResult.object) {
-				var things = matchingThings(theRoom, parseResult.object);
-				if (things.length == 0) {
-					reply("I don't see any " + formatNounPhrase(parseResult.object));
-				} else if (things.length > 1) {
-					reply("There are several. Please be more specific.");
-					_.each(things, function(o) {
-						reply(" * " + o.verboseName());
-					});
-				} else {
-					var thing = things[0];
+				var thing = findThing(theRoom, parseResult.object, reply);
+				if (thing) {
 					var handler = thing.verbs[parseResult.verb];
 					if (handler) {
 						handler(parseResult, reply);
@@ -109,10 +118,20 @@ exports.handle = function(data, reply) {
 	});
 }
 
+var userVerbs = {};
+
+userVerbs.say = function(parseResult, directObject, reply) {
+	reply('You say "'  + parseResult.text + '".');
+}
+
+userVerbs.look = function(parseResult, directObject, reply) {
+	reply("You look around");
+}
+
 function handleGlobal(parseResult, directObject, reply) {
 	if(parseResult.verb == 'say') {
 		reply('You say "'  + parseResult.text + '".');
-	}
+	} 
 }
 
 function formatNounPhrase(phrase) {
