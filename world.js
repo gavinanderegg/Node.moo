@@ -158,10 +158,12 @@ exports.addUser = function(name, socket) {
 };
 
 var globalVerbs = {};
-function addGlobalVerb(name, callback) {
-	parse.addVerb(name);
-	globalVerbs[name] = callback;
-}
+function addGlobalVerb(names, callback) {
+	_.each(names, function(name) {
+		parse.addVerb(name);
+		globalVerbs[name] = callback;
+	});
+};
 
 addGlobalVerb(['say', 's'], function(parseResult, directObject, user) {
 	var text = parseResult.text.trim();

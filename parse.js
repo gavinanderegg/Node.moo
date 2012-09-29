@@ -1,3 +1,5 @@
+var _ = require('underscore');
+
 var verbs = {};
 var adjectives = {};
 var nouns = {};
@@ -18,9 +20,7 @@ exports.parse = function(string, callback) {
 }
 
 exports.addVerb = function(verb) {
-	_.each(verb, function(v) {
-		verbs[v] = true;
-	});
+	verbs[verb] = true;
 }
 
 exports.addAdjective = function(adjective) {
