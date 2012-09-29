@@ -6,14 +6,9 @@ var underscore = require('underscore');
 var fs = require('fs');
 var io = require('socket.io');
 
-
 server = http.createServer(function(request, response) {
 	fs.readFile(__dirname + '/index.html', function (err, html) {
-		if (err) {
-			
-		}
-		
-		response.writeHeader(200, {"Content-Type": "text/html"});  
+		response.writeHeader(200, {"Content-Type": "text/html"});
 		response.write(html);
 		response.end();
 	});
