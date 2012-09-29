@@ -121,6 +121,18 @@ directionIdOpposites[west.id] = east.id;
 directionIdOpposites[up.id] = down.id;
 directionIdOpposites[down.id] = up.id;
 
+function thingForID(id){
+	var thingForID = false;
+
+	_.each(allObjects, function(thing){
+		if(id == thing.id)
+			thingForID = thing;
+	});
+
+	return thingForID;
+
+}
+
 function matchingThings(room, phrase, user, filter) {
 	var result = [];
 	_.each(room.contents(), function(o) {
@@ -230,6 +242,18 @@ function doLook(user) {
 	objList = objList.slice(0, objList.length -2);
 	
 	user.send(objList);
+
+
+	user.send('You can go:');
+
+	var directionList = '';
+	_.each(user.parent.connections, function(object, key) {
+		var direction = thingForID(key);
+		directionList += direction.simpleName() + ', ';
+	});
+	directionList = directionList.slice(0, directionList.length -2);
+
+	user.send(directionList);
 }
 
 addGlobalVerb(['look', 'l'], function(parseResult, directObject, user) {
@@ -326,6 +350,7 @@ addGlobalVerb(['dig'], function(parseResult, directObject, user) {
 				user.send("There is already a room in that direction.");
 			} else {
 				var room = new Thing(['room'], [], worldThing);
+				room.desc = 'A freshly dug room.';
 				location.connections[directObject.id] = room;
 				room.connections[directionIdOpposites[directObject.id]] = location;
 				user.parent = room;
