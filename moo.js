@@ -1,31 +1,28 @@
 var world = {};
 var clients = [];
 
-var underscore = require('underscore');
-
-// var express = require('express');
-// var app = express();
-
 var http = require('http');
+var underscore = require('underscore');
 var fs = require('fs');
+var io = require('socket.io');
 
-// app.get('/', function(req, res) {
-// 	fs.readFile('./index.html', function (err, html) {
-// 		res.set('Content-Type', 'text/html');
-// 		res.send(html);
-// 	});
-// });
-// 
-// app.listen(3000);
-
-
-
-fs.readFile('./index.html', function (err, html) {
-	http.createServer(function(request, response) {  
+server = http.createServer(function(request, response) {
+	fs.readFile(__dirname + '/index.html', function (err, html) {
+		if (err) {
+			
+		}
+		
 		response.writeHeader(200, {"Content-Type": "text/html"});  
 		response.write(html);
 		response.end();
-	}).listen(3000);
-	
-	
+	});
+}).listen(3000);
+
+io = io.listen(server);
+
+io.sockets.on('connection', function (socket) {
+	socket.emit('news', { hello: 'world' });
+	socket.on('my other event', function (data) {
+		console.log(data);
+	});
 });
