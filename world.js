@@ -183,7 +183,7 @@ addGlobalVerb('look', function(parseResult, directObject, user) {
 	_.each(place.contents(), function(i) {
 		objList += i.simpleName() + ', ';
 	});
-	objList = objList.slice(0, objList.length -3);
+	objList = objList.slice(0, objList.length -2);
 	
 	user.send(objList);
 });
