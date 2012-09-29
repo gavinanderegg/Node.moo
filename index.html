@@ -51,7 +51,19 @@
 		var output;
 
 
-		function connectWebSocket() {
+
+
+		function connectSockets() {
+
+			var socket = io.connect('http://localhost:3000');
+		 	socket.on('news', function (data) {
+		    	console.log(data);
+		    	socket.emit('my other event', { my: 'data' });
+			});
+
+			/*var socket = io.connect('http://localhost/');
+			socket.on('connect', onConnect);
+
 			websocket = new WebSocket(wsUri);
 
 			websocket.onopen = function(evt) { onOpen(evt) };
@@ -60,10 +72,10 @@
 
 			websocket.onmessage = function(evt) { onMessage(evt) };
 
-			websocket.onerror = function(evt) { onError(evt) };
+			websocket.onerror = function(evt) { onError(evt) };*/
 		}
 
-		function onOpen(evt) {
+		/*function onConnect(evt) {
 			writeToLog("CONNECTED");
 		}
 
@@ -89,14 +101,14 @@
 			pre.style.wordWrap = "break-word";
 			pre.innerHTML = message;
 			output.appendChild(pre);
-		}  
+		}  */
 
 		$(function(){
 
-			output = document.getElementById("log");
-			connectWebSocket();
+			//output = document.getElementById("log");
+			connectSockets();
 
-			$('form').submit(function(){
+			/*$('form').submit(function(){
 				var message = $('#user-input').val();
 
 
@@ -105,7 +117,7 @@
 				}
 
 				return false;
-			});
+			});*/
 
 		});
 
