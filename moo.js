@@ -1,10 +1,10 @@
-var world = {};
 var clients = [];
 
 var http = require('http');
 var underscore = require('underscore');
 var fs = require('fs');
 var io = require('socket.io');
+var world = require('./world');
 
 server = http.createServer(function(request, response) {
 	fs.readFile(__dirname + '/index.html', function (err, html) {
@@ -30,6 +30,7 @@ io.sockets.on('connection', function (socket) {
 	
 	
 	socket.on('message', function (data) {
-		socket.emit('message', data);
+		socket.emit('message', '>> ' + data);
+		world.handle(data, function(text) { socket.emit('message', text)});
 	});
 });

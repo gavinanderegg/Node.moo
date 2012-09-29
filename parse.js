@@ -95,7 +95,7 @@ function parseNounPhrase() {
     if (adjectives[currentToken()]) {
         pieces.push(consumeToken());
     }
-    if (nouns[currentToken()]) {
+    if (nouns[currentToken()] || currentToken().indexOf('object-') === 0) {
         return {'noun': consumeToken(), adjectives: pieces};
     }
     parseError("No noun");
