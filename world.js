@@ -111,7 +111,7 @@ exports.handle = function(data, reply) {
 
 function handleGlobal(parseResult, directObject, reply) {
 	if(parseResult.verb == 'say') {
-		reply(parseResult.text);
+		reply('You say "'  + parseResult.text + '".');
 	}
 }
 
