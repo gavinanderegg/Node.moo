@@ -5,8 +5,19 @@ var allObjects = [];
 
 function Thing(names, adjectives) {
 	this.names = names.slice();
+
+	_.each(this.names, function(v) {
+		parse.addNoun(v);
+	});
+
 	this.names.push('object-' + allObjects.length);
+
 	this.adjectives = adjectives.slice();
+
+	_.each(this.adjectives, function(a) {
+		parse.addAdjective(a);
+	});
+
 	this.verbs = {};
 
 	allObjects.push(this);
@@ -41,19 +52,9 @@ Thing.prototype.contents = function() {
 
 Thing.prototype.setVerbHandler = function(name, handler) {
 	this.verbs[name] = _.bind(handler, this);
+	
+	parse.addVerb(name);
 }
-
-_.each(['eat', 'take', 'give'], function(v) {
-	parse.addVerb(v);
-});
-
-_.each(['the', 'red', 'blue', 'green', 'big', 'small'], function(a) {
-	parse.addAdjective(a);
-});
-
-_.each(['apple', 'pen', 'house'], function(n) {
-	parse.addNoun(n);
-});
 
 var theRoom = new Thing(['house'], ['']);
 var apple = new Thing(['apple'], ['red']);
