@@ -56,7 +56,7 @@ function consumeToken() {
 }
 
 function parseSentence(toks) {
-	if (currentToken()[0] == "'" || currentToken() == 'say') {
+	if (currentToken()[0] == "'" || currentToken() == 'say' || currentToken() == 's') {
 		var text = '';
 		if(currentToken()[0] == "'" && currentToken().length > 1) {
 			text = currentToken().slice(1) + ' ';
