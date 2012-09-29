@@ -5,10 +5,12 @@ var adjectives = {};
 var nouns = {};
 
 var tokens = [];
+var casedTokens = [];
 var currentIndex = 0;
 exports.parse = function(string, callback) {
     process.nextTick(function() {
         tokens = string.toLowerCase().split(' ');
+		casedTokens = string.split(' ');
         currentIndex = 0;
         try {
             var result = parseSentence();
@@ -55,6 +57,16 @@ function consumeToken() {
     return tokens[currentIndex-1];
 }
 
+function remainingCasedText() {
+	var text = casedTokens.slice(currentIndex).join(' ');
+	if (text[0] == '"') {
+		text = text.substring(1, text.length)
+	} if (text[text.length-1] == '"') {
+		text = text.substring(0, text.length-1);
+	}
+	return text;
+}
+
 function parseSentence(toks) {
 	if (currentToken()[0] == "'" || currentToken() == 'say' || currentToken() == 's') {
 		var text = '';
@@ -62,7 +74,7 @@ function parseSentence(toks) {
 			text = currentToken().slice(1) + ' ';
 		}
 		consumeToken();
-		var text = text + tokens.slice(1).join(' ');
+		var text = remainingCasedText();
 		return {'verb': 'say', 'text': text};
 	} else if ( currentToken() == 'create' ){
 		var thingName = '';
@@ -83,10 +95,19 @@ function parseSentence(toks) {
 	var complements = [];
 	
 	if (verb == 'edit' || verb == '!') {
-		var verb = parseVerb();
+		var verb = consumeToken();
 		var objectPhrase = parseNounPhrase();
 		
 		return {'verb': 'edit', 'object': objectPhrase, 'newVerb': verb};
+	}
+
+	if (verb == 'describe') {
+		var objectPhrase = parseNounPhrase();
+		if (currentToken() == 'as') {
+			consumeToken();
+		}
+		var rest = remainingCasedText();
+		return {'verb': verb, 'object': objectPhrase, 'text': rest};
 	}
 	
     if(tokensLeft()) {

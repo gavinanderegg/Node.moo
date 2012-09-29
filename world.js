@@ -1,5 +1,6 @@
 var parse = require('./parse');
 var _ = require('underscore');
+var sys = require('sys');
 
 var allObjects = [];
 
@@ -148,7 +149,18 @@ function matchingThings(room, phrase, user, filter) {
 	return result;
 }
 
+parse.addNoun('here');
+parse.addNoun('me');
+
 function findThing(room, phrase, user, filter) {
+	if (phrase.noun == 'here') {
+		return user.parent;
+	}
+
+	if (phrase.noun == 'me') {
+		return user;
+	}
+
 	var things = matchingThings(room, phrase, user, filter);
 	if (things.length == 0) {
 		user.send("I don't see any " + formatNounPhrase(phrase));
@@ -261,22 +273,19 @@ addGlobalVerb(['look', 'l'], function(parseResult, directObject, user) {
 
 
 addGlobalVerb(['edit', '!'], function(parseResult, directObject, user) {
-	// edit eat apple
+	// pop up editor
 	
-	// Create an editor, and wait for the result. Deal with that stuff
-	// - later
+	// collect input
 	
-	// - 
-	
-	console.log(' ------ ' + parseResult);
-	
-	// directObject.verbs[]
+	directObject.verbs[parseResult.newVerb] = function() {
+		// make the input go here somehow
+	};
 });
 
 addGlobalVerb(['create'], function(parseResult, directObject, user) {
 	var newThing = new Thing(parseResult.thingName, parseResult.adjectives, user);
-	user.send("You created a: "+newThing.simpleName());
-
+	user.send("You created a: " + newThing.simpleName());
+	user.sendToOthers(user.simpleName() + " created a " + newThing.simpleName());
 });
 
 addGlobalVerb(['inventory'], function(parseResult, directObject, user) {
@@ -299,9 +308,8 @@ addGlobalVerb(['take'], function(parseResult, directObject, user) {
 		directObject.parent = user
 
 		user.send('You have taken: '+directObject.simpleName());
-
+		user.sendToOthers(user.simpleName() + " took a " + directObject.simpleName());
 	}
-
 });
 
 
@@ -311,7 +319,7 @@ addGlobalVerb(['drop'], function(parseResult, directObject, user) {
 		directObject.parent = user.parent
 
 		user.send('You have dropped: '+directObject.simpleName());
-
+		user.sendToOthers(user.simpleName() + " dropped a " + directObject.simpleName());
 	}
 
 }, function(phrase, object, user) { 
@@ -330,8 +338,8 @@ addGlobalVerb(['describe'], function(parseResult, directObject, user) {
 	if (!directObject) {
 		user.send("Describe what?");
 	} else {
-		directObject.desc = parseResult;
-		user.send("You described " + directObject.name + " as " + parseResult);
+		directObject.desc = parseResult.text;
+		user.send("You described " + directObject.simpleName() + ' as "' + parseResult.text + '"');
 	}
 });
 
@@ -352,6 +360,7 @@ addGlobalVerb(['dig'], function(parseResult, directObject, user) {
 				room.desc = 'A freshly dug room.';
 				location.connections[directObject.id] = room;
 				room.connections[directionIdOpposites[directObject.id]] = location;
+				user.sendToOthers(user.simpleName() + " digs " + directObject.simpleName());
 				user.parent = room;
 				user.send("Room dug! You're now in it.");
 				doLook(user);
@@ -360,8 +369,7 @@ addGlobalVerb(['dig'], function(parseResult, directObject, user) {
 	}
 });
 
-_.each(directionThings, function(direction) {
-	addGlobalVerb(direction.simpleName(), function(parseResult, directObject, user) {
+function doGo(direction, user) {
 		var location = user.parent;
 		if (location.parent != worldThing) {
 			user.send("You must be in a room first.");
@@ -369,11 +377,28 @@ _.each(directionThings, function(direction) {
 			if (!location.connections[direction.id]) {
 				user.send("There is no room in that direction");
 			} else {
+			user.sendToOthers(user.simpleName() + " goes " + direction.simpleName());
 				user.parent = location.connections[direction.id];
+			user.sendToOthers(user.simpleName() + " arrives.");
 				doLook(user);
 			}
 		}
+}
+
+_.each(directionThings, function(direction) {
+	addGlobalVerb([direction.simpleName()], function(parseResult, directObject, user) {
+		doGo(direction, user);
 	})
+});
+
+addGlobalVerb(['go', 'g'], function(parseResult, directObject, user) {
+	if (!directObject) {
+		user.send("Go where?");
+	} else if (directionThings.indexOf(directObject) == -1) {
+		user.send("You can only go in a direction.");
+	} else {
+		doGo(directObject, user);
+	}
 });
 
 function handleGlobal(parseResult, directObject, user) {
@@ -386,4 +411,5 @@ function handleGlobal(parseResult, directObject, user) {
 function formatNounPhrase(phrase) {
 	return phrase.adjectives.join(' ') + ' ' + phrase.noun;
 }
+
 
