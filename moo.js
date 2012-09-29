@@ -1,10 +1,16 @@
 var world = {};
+var clients = [];
 
-var express = require('express');
-var app = express();
+var underscore = require('underscore');
+var http = require('http');
+var fs = require('fs');
 
-app.get('/', function(req, res){
-	res.send('hello world');
+fs.readFile('./temp.html', function (err, html) {
+	http.createServer(function(request, response) {  
+		response.writeHeader(200, {"Content-Type": "text/html"});  
+		response.write(html);
+		response.end();
+	}).listen(3000);
+	
+	
 });
-
-app.listen(3000);
