@@ -22,9 +22,11 @@ io.sockets.on('connection', function (socket) {
 	socket.on('newuser', function (data) {
 		socket.emit('message', 'hello, ' + data + '!');
 		
-		 client.append({
+		 clients.push({
 			'username': data
 		});
+		
+		socket.emit('newuser', 'connected');
 	});
 	
 	
