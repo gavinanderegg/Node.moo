@@ -6,8 +6,6 @@ var underscore = require('underscore');
 var fs = require('fs');
 var io = require('socket.io');
 
-var clientFiles = new static.Server('./static');
-
 server = http.createServer(function(request, response) {
 	fs.readFile(__dirname + '/index.html', function (err, html) {
 		if (err) {
