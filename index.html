@@ -66,6 +66,9 @@
 			
 			socket.on('message', function (data){
 				$('#log').append('<br/>'+data);
+				var log = document.getElementById("log");
+				log.scrollTop = log.scrollHeight;
+				console.log(log.scrollHeight);
 			});
 		}
 
@@ -85,6 +88,8 @@
 
 							var log = document.getElementById("log");
 							log.scrollTop = log.scrollHeight;
+							console.log(log.scrollHeight);
+
 							socket.emit('message', message);
 						}
 					}else{
@@ -115,6 +120,7 @@
 			});
 
 		});
+
 
 	</script>
 
