@@ -18,6 +18,8 @@ io = io.listen(server);
 
 io.sockets.on('connection', function (socket) {
 	console.log('Socket connected');
+
+	var user = null;
 	
 	socket.on('newuser', function (data) {
 		socket.emit('message', 'hello, ' + data + '!');
@@ -26,13 +28,13 @@ io.sockets.on('connection', function (socket) {
 			'username': data
 		});
 		
-		world.addUser(data, socket);
+		user = world.addUser(data, socket);
 		
 		socket.emit('newuser', 'connected');
 	});
 	
 	socket.on('message', function (data) {
 		socket.emit('message', '>> ' + data);
-		world.handle(data, function(text) { socket.emit('message', text); });
+		world.handle(data, user);
 	});
 });
