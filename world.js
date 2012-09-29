@@ -136,7 +136,18 @@ function matchingThings(room, phrase, user, filter) {
 	return result;
 }
 
+parse.addNoun('here');
+parse.addNoun('me');
+
 function findThing(room, phrase, user, filter) {
+	if (phrase.noun == 'here') {
+		return user.parent;
+	}
+
+	if (phrase.noun == 'me') {
+		return user;
+	}
+
 	var things = matchingThings(room, phrase, user, filter);
 	if (things.length == 0) {
 		user.send("I don't see any " + formatNounPhrase(phrase));
@@ -296,8 +307,8 @@ addGlobalVerb(['describe'], function(parseResult, directObject, user) {
 	if (!directObject) {
 		user.send("Describe what?");
 	} else {
-		directObject.desc = parseResult;
-		user.send("You described " + directObject.name + " as " + parseResult);
+		directObject.desc = parseResult.text;
+		user.send("You described " + directObject.simpleName() + ' as "' + parseResult.text + '"');
 	}
 });
 
@@ -351,4 +362,5 @@ function handleGlobal(parseResult, directObject, user) {
 function formatNounPhrase(phrase) {
 	return phrase.adjectives.join(' ') + ' ' + phrase.noun;
 }
+
 
