@@ -122,6 +122,18 @@ directionIdOpposites[west.id] = east.id;
 directionIdOpposites[up.id] = down.id;
 directionIdOpposites[down.id] = up.id;
 
+function thingForID(id){
+	var thingForID = false;
+
+	_.each(allObjects, function(thing){
+		if(id == thing.id)
+			thingForID = thing;
+	});
+
+	return thingForID;
+
+}
+
 function matchingThings(room, phrase, user, filter) {
 	var result = [];
 	_.each(room.contents(), function(o) {
@@ -137,7 +149,18 @@ function matchingThings(room, phrase, user, filter) {
 	return result;
 }
 
+parse.addNoun('here');
+parse.addNoun('me');
+
 function findThing(room, phrase, user, filter) {
+	if (phrase.noun == 'here') {
+		return user.parent;
+	}
+
+	if (phrase.noun == 'me') {
+		return user;
+	}
+
 	var things = matchingThings(room, phrase, user, filter);
 	if (things.length == 0) {
 		user.send("I don't see any " + formatNounPhrase(phrase));
@@ -220,6 +243,18 @@ function doLook(user) {
 	objList = objList.slice(0, objList.length -2);
 	
 	user.send(objList);
+
+
+	user.send('You can go:');
+
+	var directionList = '';
+	_.each(user.parent.connections, function(object, key) {
+		var direction = thingForID(key);
+		directionList += direction.simpleName() + ', ';
+	});
+	directionList = directionList.slice(0, directionList.length -2);
+
+	user.send(directionList);
 }
 
 addGlobalVerb(['look', 'l'], function(parseResult, directObject, user) {
@@ -293,8 +328,8 @@ addGlobalVerb(['describe'], function(parseResult, directObject, user) {
 	if (!directObject) {
 		user.send("Describe what?");
 	} else {
-		directObject.desc = parseResult;
-		user.send("You described " + directObject.name + " as " + parseResult);
+		directObject.desc = parseResult.text;
+		user.send("You described " + directObject.simpleName() + ' as "' + parseResult.text + '"');
 	}
 });
 
@@ -312,6 +347,7 @@ addGlobalVerb(['dig'], function(parseResult, directObject, user) {
 				user.send("There is already a room in that direction.");
 			} else {
 				var room = new Thing(['room'], [], worldThing);
+				room.desc = 'A freshly dug room.';
 				location.connections[directObject.id] = room;
 				room.connections[directionIdOpposites[directObject.id]] = location;
 				user.parent = room;
@@ -348,4 +384,5 @@ function handleGlobal(parseResult, directObject, user) {
 function formatNounPhrase(phrase) {
 	return phrase.adjectives.join(' ') + ' ' + phrase.noun;
 }
+
 
