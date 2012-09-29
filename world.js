@@ -3,7 +3,7 @@ var _ = require('underscore');
 
 var allObjects = [];
 
-function Thing(names, adjectives) {
+function Thing(names, adjectives, parent) {
 	this.names = names.slice();
 
 	_.each(this.names, function(v) {
@@ -19,6 +19,8 @@ function Thing(names, adjectives) {
 	});
 
 	this.verbs = {};
+
+	this.parent = parent;
 
 	allObjects.push(this);
 };
@@ -87,19 +89,27 @@ Thing.prototype.sendToOthers = function(text) {
 	});
 };
 
-var theRoom = new Thing(['house'], ['']);
-var apple = new Thing(['apple'], ['red']);
-apple.parent = theRoom;
+var worldThing = new Thing(['world'], []);
+
+var theRoom = new Thing(['house'], [''], worldThing);
+
+var apple = new Thing(['apple'], ['red'], theRoom);
 apple.setVerbHandler('eat', function(parseResult, user) {
 	user.send("you eat the " + this.names[0]);
 });
 
-var apple2 = new Thing(['apple'], ['blue']);
-apple2.parent = theRoom;
+var apple2 = new Thing(['apple'], ['blue'], theRoom);
 apple2.setVerbHandler('eat', function(parseResult, user) {
 	user.send("you eat the " + this.names[0]);
 });
 
+var north = new Thing(['north', 'n'], [], worldThing);
+var east = new Thing(['east', 'e'], [], worldThing);
+var west = new Thing(['west', 'w'], [], worldThing);
+var south = new Thing(['south', 's'], [], worldThing);
+var up = new Thing(['up', 'u'], [], worldThing);
+var down = new Thing(['down', 'd'], [], worldThing);
+var directionThings = [north, east, south, west, up, down];
 
 function matchingThings(room, phrase) {
 	var result = [];
@@ -108,6 +118,11 @@ function matchingThings(room, phrase) {
 			result.push(o);
 		}
 	});
+
+	if (room.parent) {
+		result = result.concat(matchingThings(room.parent, phrase));
+	}
+
 	return result;
 }
 
@@ -211,6 +226,15 @@ addGlobalVerb('describe', function(parseResult, directObject, user) {
 	} else {
 		directObject.desc = parseResult;
 		user.send("You described " + directObject.name + " as " + parseResult);
+	}
+});
+
+addGlobalVerb('dig', function(parseResult, directObject, user) {
+	if (!directObject) {
+		user.send("Dig where?");
+	} else if (directionThings.indexOf(directObject) == -1) {
+		user.send("You can only dig in a direction");
+	} else {
 	}
 });
 
