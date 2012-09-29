@@ -205,8 +205,7 @@ addGlobalVerb('look', function(parseResult, directObject, user) {
 
 
 addGlobalVerb('create', function(parseResult, directObject, user) {
-	var newThing = new Thing(parseResult.thingName, parseResult.adjectives);
-	newThing.parent = user.parent;
+	var newThing = new Thing(parseResult.thingName, parseResult.adjectives, user);
 
 	user.send("You created a: "+newThing.simpleName());
 
