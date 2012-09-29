@@ -198,7 +198,7 @@ addGlobalVerb('say', function(parseResult, directObject, user) {
 	user.sendToOthers(user.simpleName() + ' says "' + text + '"');
 });
 
-addGlobalVerb('look', function(parseResult, directObject, user) {
+function doLook(user) {
 	var place = user.parent;
 	
 	user.send(place.desc);
@@ -206,11 +206,17 @@ addGlobalVerb('look', function(parseResult, directObject, user) {
 	
 	var objList = '';
 	_.each(place.contents(), function(i) {
-		objList += i.simpleName() + ', ';
+		if (i != user) {
+			objList += i.simpleName() + ', ';
+		}
 	});
 	objList = objList.slice(0, objList.length -2);
 	
 	user.send(objList);
+}
+
+addGlobalVerb('look', function(parseResult, directObject, user) {
+	doLook(user);
 });
 
 
@@ -257,6 +263,7 @@ addGlobalVerb('dig', function(parseResult, directObject, user) {
 				room.connections[directionIdOpposites[directObject.id]] = location;
 				user.parent = room;
 				user.send("Room dug! You're now in it.");
+				doLook(user);
 			}
 		}
 	}
@@ -272,6 +279,7 @@ _.each(directionThings, function(direction) {
 				user.send("There is no room in that direction");
 			} else {
 				user.parent = location.connections[direction.id];
+				doLook(user);
 			}
 		}
 	})
