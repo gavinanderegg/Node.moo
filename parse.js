@@ -62,7 +62,17 @@ function parseSentence(toks) {
 		consumeToken();
 		var text = text + tokens.slice(1).join(' ');
 		return {'verb': 'say', 'text': text};
-	}
+	}else if( currentToken() == 'create' ){
+        var thingName = '';
+        var adjectives = Array();
+        thingName = tokens.slice(tokens.length-1);
+
+        tokens.shift();
+        tokens.pop();
+
+        var adjectives = tokens;
+        return {'verb':'create', 'thingName': thingName, 'adjectives': adjectives};
+    }
     var verb = parseVerb();
     var objectPhrase = null;
     var complements = [];
