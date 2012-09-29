@@ -64,21 +64,31 @@ function parseSentence(toks) {
 		consumeToken();
 		var text = text + tokens.slice(1).join(' ');
 		return {'verb': 'say', 'text': text};
-	}else if( currentToken() == 'create' ){
-        var thingName = '';
-        var adjectives = Array();
-        thingName = tokens.slice(tokens.length-1);
-
-        tokens.shift();
-        tokens.pop();
-
-        var adjectives = tokens;
-        return {'verb':'create', 'thingName': thingName, 'adjectives': adjectives};
-    }
-    var verb = parseVerb();
-    var objectPhrase = null;
-    var complements = [];
-
+	} else if ( currentToken() == 'create' ){
+		var thingName = '';
+		var adjectives = Array();
+		thingName = tokens.slice(tokens.length-1);
+		
+		tokens.shift();
+		tokens.pop();
+		
+		var adjectives = tokens;
+		return {'verb':'create', 'thingName': thingName, 'adjectives': adjectives};
+	} else if (currentToken() == 'create') {
+		
+	}
+	
+	var verb = parseVerb();
+	var objectPhrase = null;
+	var complements = [];
+	
+	if (verb == 'edit' || verb == '!') {
+		var verb = parseVerb();
+		var objectPhrase = parseNounPhrase();
+		
+		return {'verb': 'edit', 'object': objectPhrase, 'newVerb': verb};
+	}
+	
     if(tokensLeft()) {
         try {
             var objectPhrase = parseNounPhrase();
@@ -86,10 +96,10 @@ function parseSentence(toks) {
         }
     }
 
-    while(tokensLeft()) {
-        var complement = parseComplement();
-        complements.push(complement);
-    }
+	while(tokensLeft()) {
+		var complement = parseComplement();
+		complements.push(complement);
+	}
 
     return {'verb': verb, 'object': objectPhrase, 'complements': complements};
 }
