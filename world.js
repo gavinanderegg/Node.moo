@@ -57,19 +57,27 @@ Thing.prototype.setVerbHandler = function(name, handler) {
 
 Thing.prototype.description = function() {
 	return this.verboseName();
+};
+
+Thing.prototype.send = function(text) {
+	if(this.socket) {
+		this.socket.emit('message', text);
+	} else {
+		console.log("sending to " + this.verboseName() + ": " + text);
+	}
 }
 
 var theRoom = new Thing(['house'], ['']);
 var apple = new Thing(['apple'], ['red']);
 apple.parent = theRoom;
-apple.setVerbHandler('eat', function(parseResult, reply) {
-	reply("you eat the " + this.names[0]);
+apple.setVerbHandler('eat', function(parseResult, user) {
+	user.send("you eat the " + this.names[0]);
 });
 
 var apple2 = new Thing(['apple'], ['blue']);
 apple2.parent = theRoom;
-apple2.setVerbHandler('eat', function(parseResult, reply) {
-	reply("you eat the " + this.names[0]);
+apple2.setVerbHandler('eat', function(parseResult, user) {
+	user.send("you eat the " + this.names[0]);
 });
 
 
@@ -83,15 +91,15 @@ function matchingThings(room, phrase) {
 	return result;
 }
 
-function findThing(room, phrase, reply) {
+function findThing(room, phrase, user) {
 	var things = matchingThings(theRoom, phrase);
 	if (things.length == 0) {
-		reply("I don't see any " + formatNounPhrase(phrase));
+		user.send("I don't see any " + formatNounPhrase(phrase));
 		return false;
 	} else if (things.length > 1) {
-		reply("There are several. Please be more specific.");
+		user.send("There are several. Please be more specific.");
 		_.each(things, function(o) {
-			reply(" * " + o.verboseName());
+			user.send(" * " + o.verboseName());
 		});
 		return false;
 	} else {
@@ -100,23 +108,23 @@ function findThing(room, phrase, reply) {
 	}
 }
 
-exports.handle = function(data, reply) {
+exports.handle = function(data, user) {
 	parse.parse(data, function(error, parseResult) {
 		if(error) {
-			reply("error: " + error);
+			user.send("error: " + error);
 		} else {
 			if (parseResult.object) {
-				var thing = findThing(theRoom, parseResult.object, reply);
+				var thing = findThing(theRoom, parseResult.object, user);
 				if (thing) {
 					var handler = thing.verbs[parseResult.verb];
 					if (handler) {
-						handler(parseResult, reply);
+						handler(parseResult, user);
 					} else {
-						handleGlobal(parseResult, thing, reply);
+						handleGlobal(parseResult, thing, user);
 					}
 				}
 			} else {
-				handleGlobal(parseResult, null, reply);
+				handleGlobal(parseResult, null, user);
 			}
 		}
 	});
@@ -126,6 +134,7 @@ exports.addUser = function(data, socket) {
 	var newUser = new Thing(['user', data.name], ['newb']);
 	newUser.parent = theRoom;
 	newUser.socket = socket;
+	return newUser;
 };
 
 var globalVerbs = {};
@@ -134,26 +143,26 @@ function addGlobalVerb(name, callback) {
 	globalVerbs[name] = callback;
 }
 
-addGlobalVerb('say', function(parseResult, directObject, reply) {
-	reply('You say "'  + parseResult.text + '".');
+addGlobalVerb('say', function(parseResult, directObject, user) {
+	user.send('You say "'  + parseResult.text + '".');
 });
 
-addGlobalVerb('look', function(parseResult, directObject, reply) {
-	reply("You look around");
+addGlobalVerb('look', function(parseResult, directObject, user) {
+	user.send("You look around");
 });
 
-addGlobalVerb('inspect', function(parseResult, directObject, reply) {
+addGlobalVerb('inspect', function(parseResult, directObject, user) {
 	if (!directObject) {
-		reply("Inspect what?");
+		user.send("Inspect what?");
 	} else {
-		reply(directObject.description());
+		user.send(directObject.description());
 	}
 });
 
-function handleGlobal(parseResult, directObject, reply) {
+function handleGlobal(parseResult, directObject, user) {
 	var handler = globalVerbs[parseResult.verb];
 	if (handler) {
-		handler(parseResult, directObject, reply);
+		handler(parseResult, directObject, user);
 	}
 }
 
