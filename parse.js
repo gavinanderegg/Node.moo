@@ -1,3 +1,5 @@
+var _ = require('underscore');
+
 var verbs = {};
 var adjectives = {};
 var nouns = {};
@@ -18,7 +20,7 @@ exports.parse = function(string, callback) {
 }
 
 exports.addVerb = function(verb) {
-    verbs[verb] = true;
+	verbs[verb] = true;
 }
 
 exports.addAdjective = function(adjective) {
@@ -54,7 +56,7 @@ function consumeToken() {
 }
 
 function parseSentence(toks) {
-	if (currentToken()[0] == "'" || currentToken() == 'say') {
+	if (currentToken()[0] == "'" || currentToken() == 'say' || currentToken() == 's') {
 		var text = '';
 		if(currentToken()[0] == "'" && currentToken().length > 1) {
 			text = currentToken().slice(1) + ' ';
