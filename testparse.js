@@ -23,12 +23,21 @@ action.setVerbHandler('eat', function(parseResult, callback) {
 	}
 });
 
+action.setVerbHandler('say', function(parseResult, callback) {
+	if (parseResult.text) {
+		callback(null, 'You say "' + parseResult.text + '".');
+	} else {
+		callback('Say what?', null);
+	}
+});
+
 prompt.start();
 function readOne() {
 	prompt.get('phrase', function(err, result) {
 		parse.parse(result.phrase, function(error, result) {
 			if(error) {
 				console.error(error);
+				readOne();
 			} else {
 				console.log(JSON.stringify(result, null, '  '));
 				action.run(result, function(error, result) {

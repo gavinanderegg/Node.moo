@@ -54,7 +54,9 @@
 			socket = io.connect('http://localhost:3000');
 
 
-		 	socket.on('message', function (data){ console.log('test'); console.log(data); });
+		 	socket.on('message', function (data){
+		 		$('#log').append('<br/>'+data);
+		 	});
 
 		}
 
@@ -68,7 +70,11 @@
 
 					var message = $('#user-input').val();
 
+<<<<<<< HEAD
 					if(message) {
+=======
+					if(message)
+>>>>>>> 48bbbc8c891bd9220014a91c07b6378147ed8c16
 						socket.emit('message', message);
 					}
 				}
