@@ -226,6 +226,19 @@ addGlobalVerb(['look', 'l'], function(parseResult, directObject, user) {
 });
 
 
+addGlobalVerb(['edit', '!'], function(parseResult, directObject, user) {
+	// edit eat apple
+	
+	// Create an editor, and wait for the result. Deal with that stuff
+	// - later
+	
+	// - 
+	
+	console.log(' ------ ' + parseResult);
+	
+	// directObject.verbs[]
+});
+
 addGlobalVerb(['create'], function(parseResult, directObject, user) {
 	var newThing = new Thing(parseResult.thingName, parseResult.adjectives, user);
 	user.send("You created a: "+newThing.simpleName());
