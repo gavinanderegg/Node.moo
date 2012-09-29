@@ -18,7 +18,9 @@ exports.parse = function(string, callback) {
 }
 
 exports.addVerb = function(verb) {
-    verbs[verb] = true;
+	_.each(verb, function(v) {
+		verbs[v] = true;
+	});
 }
 
 exports.addAdjective = function(adjective) {

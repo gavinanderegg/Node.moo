@@ -163,7 +163,7 @@ function addGlobalVerb(name, callback) {
 	globalVerbs[name] = callback;
 }
 
-addGlobalVerb('say', function(parseResult, directObject, user) {
+addGlobalVerb(['say', 's'], function(parseResult, directObject, user) {
 	var text = parseResult.text.trim();
 	var last = text[text.length - 1];
 	if (last != '.' && last != '?' && last != '!') {
@@ -173,7 +173,7 @@ addGlobalVerb('say', function(parseResult, directObject, user) {
 	user.sendToOthers(user.simpleName() + ' says "' + text + '"');
 });
 
-addGlobalVerb('look', function(parseResult, directObject, user) {
+addGlobalVerb(['look', 'l'], function(parseResult, directObject, user) {
 	var place = user.parent;
 	
 	user.send(place.desc);
