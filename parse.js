@@ -54,6 +54,15 @@ function consumeToken() {
 }
 
 function parseSentence(toks) {
+	if (currentToken()[0] == "'" || currentToken() == 'say') {
+		var text = '';
+		if(currentToken()[0] == "'" && currentToken().length > 1) {
+			text = currentToken().slice(1) + ' ';
+		}
+		consumeToken();
+		var text = text + tokens.slice(1).join(' ');
+		return {'verb': 'say', 'text': text};
+	}
     var verb = parseVerb();
     var objectPhrase = null;
     var complements = [];
