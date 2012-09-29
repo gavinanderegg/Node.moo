@@ -113,9 +113,6 @@ var up = new Thing(['up', 'u'], [], worldThing);
 var down = new Thing(['down', 'd'], [], worldThing);
 var directionThings = [north, east, south, west, up, down];
 
-<<<<<<< HEAD
-function matchingThings(room, phrase, user, filter) {
-=======
 var directionIdOpposites = {}
 directionIdOpposites[north.id] = south.id;
 directionIdOpposites[south.id] = north.id;
@@ -124,8 +121,7 @@ directionIdOpposites[west.id] = east.id;
 directionIdOpposites[up.id] = down.id;
 directionIdOpposites[down.id] = up.id;
 
-function matchingThings(room, phrase) {
->>>>>>> 4c135f77ef453df2eccbe9f202ff0a1ea10911f0
+function matchingThings(room, phrase, user, filter) {
 	var result = [];
 	_.each(room.contents(), function(o) {
 		if (o.matches(phrase) && (!filter || filter(phrase, o, user))) {
