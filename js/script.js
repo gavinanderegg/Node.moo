@@ -52,10 +52,6 @@ $(function(){
 
 
 		if(message){
-
-
-			writeToLog('<span style="color: green;">REQUEST: ' + message+'</span>');
-
 			doSend(message);
 		}
 
