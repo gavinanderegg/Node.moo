@@ -226,13 +226,13 @@ addGlobalVerb(['look', 'l'], function(parseResult, directObject, user) {
 });
 
 
-addGlobalVerb('create', function(parseResult, directObject, user) {
+addGlobalVerb(['create'], function(parseResult, directObject, user) {
 	var newThing = new Thing(parseResult.thingName, parseResult.adjectives, user);
 	user.send("You created a: "+newThing.simpleName());
 
 });
 
-addGlobalVerb('inventory', function(parseResult, directObject, user) {
+addGlobalVerb(['inventory'], function(parseResult, directObject, user) {
 
 	user.send('You have:');
 	
@@ -246,7 +246,7 @@ addGlobalVerb('inventory', function(parseResult, directObject, user) {
 
 });
 
-addGlobalVerb('take', function(parseResult, directObject, user) {
+addGlobalVerb(['take'], function(parseResult, directObject, user) {
 
 	if(directObject != user && directObject.parent == user.parent ){
 		directObject.parent = user
@@ -258,7 +258,7 @@ addGlobalVerb('take', function(parseResult, directObject, user) {
 });
 
 
-addGlobalVerb('drop', function(parseResult, directObject, user) {
+addGlobalVerb(['drop'], function(parseResult, directObject, user) {
 
 	if( directObject.parent == user ){
 		directObject.parent = user.parent
@@ -271,7 +271,7 @@ addGlobalVerb('drop', function(parseResult, directObject, user) {
 	return object.parent == user;
 });
 
-addGlobalVerb('inspect', function(parseResult, directObject, user) {
+addGlobalVerb(['inspect'], function(parseResult, directObject, user) {
 	if (!directObject) {
 		user.send("Inspect what?");
 	} else {
@@ -279,7 +279,7 @@ addGlobalVerb('inspect', function(parseResult, directObject, user) {
 	}
 });
 
-addGlobalVerb('describe', function(parseResult, directObject, user) {
+addGlobalVerb(['describe'], function(parseResult, directObject, user) {
 	if (!directObject) {
 		user.send("Describe what?");
 	} else {
@@ -288,7 +288,7 @@ addGlobalVerb('describe', function(parseResult, directObject, user) {
 	}
 });
 
-addGlobalVerb('dig', function(parseResult, directObject, user) {
+addGlobalVerb(['dig'], function(parseResult, directObject, user) {
 	if (!directObject) {
 		user.send("Dig where?");
 	} else if (directionThings.indexOf(directObject) == -1) {
