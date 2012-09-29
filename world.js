@@ -46,8 +46,13 @@ Thing.prototype.verboseName = function() {
 	return name;
 };
 
+Thing.prototype.simpleName = function() {
+	return this.names[0];
+}
+
 Thing.prototype.contents = function() {
-	return _.filter(allObjects, function (o) { return o.parent = this; });
+	var that = this;
+	return _.filter(allObjects, function (o) { return o.parent == that;});
 };
 
 Thing.prototype.setVerbHandler = function(name, handler) {
@@ -62,9 +67,16 @@ Thing.prototype.description = function() {
 Thing.prototype.send = function(text) {
 	if(this.socket) {
 		this.socket.emit('message', text);
-	} else {
-		console.log("sending to " + this.verboseName() + ": " + text);
 	}
+}
+
+Thing.prototype.sendToOthers = function(text) {
+	var that = this;
+	_.each(this.parent.contents(), function(other) {
+		if (other != that) {
+			other.send(text);
+		}
+	});
 }
 
 var theRoom = new Thing(['house'], ['']);
@@ -130,8 +142,8 @@ exports.handle = function(data, user) {
 	});
 };
 
-exports.addUser = function(data, socket) {
-	var newUser = new Thing(['user', data.name], ['newb']);
+exports.addUser = function(name, socket) {
+	var newUser = new Thing([name, 'user'], ['newb']);
 	newUser.parent = theRoom;
 	newUser.socket = socket;
 	return newUser;
@@ -144,7 +156,13 @@ function addGlobalVerb(name, callback) {
 }
 
 addGlobalVerb('say', function(parseResult, directObject, user) {
-	user.send('You say "'  + parseResult.text + '".');
+	var text = parseResult.text.trim();
+	var last = text[text.length - 1];
+	if (last != '.' && last != '?' && last != '!') {
+		text = text + '.';
+	}
+	user.send('You say "'  + text + '"');
+	user.sendToOthers(user.simpleName() + ' says "' + text + '"');
 });
 
 addGlobalVerb('look', function(parseResult, directObject, user) {
