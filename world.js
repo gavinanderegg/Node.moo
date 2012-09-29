@@ -10,7 +10,8 @@ function Thing(names, adjectives, parent) {
 		parse.addNoun(v);
 	});
 
-	this.names.push('object-' + allObjects.length);
+	this.id = allObjects.length;
+	this.names.push('object-' + this.id);
 
 	this.adjectives = adjectives.slice();
 
@@ -19,6 +20,7 @@ function Thing(names, adjectives, parent) {
 	});
 
 	this.verbs = {};
+	this.connections = {};
 
 	this.parent = parent;
 
@@ -110,6 +112,14 @@ var south = new Thing(['south', 's'], [], worldThing);
 var up = new Thing(['up', 'u'], [], worldThing);
 var down = new Thing(['down', 'd'], [], worldThing);
 var directionThings = [north, east, south, west, up, down];
+
+var directionIdOpposites = {}
+directionIdOpposites[north.id] = south.id;
+directionIdOpposites[south.id] = north.id;
+directionIdOpposites[east.id] = west.id;
+directionIdOpposites[west.id] = east.id;
+directionIdOpposites[up.id] = down.id;
+directionIdOpposites[down.id] = up.id;
 
 function matchingThings(room, phrase) {
 	var result = [];
@@ -233,9 +243,38 @@ addGlobalVerb('dig', function(parseResult, directObject, user) {
 	if (!directObject) {
 		user.send("Dig where?");
 	} else if (directionThings.indexOf(directObject) == -1) {
-		user.send("You can only dig in a direction");
+		user.send("You can only dig in a direction.");
 	} else {
+		var location = user.parent;
+		if (location.parent != worldThing) {
+			user.send("You have to be in a room to dig.");
+		} else {
+			if (location.connections[directObject.id]) {
+				user.send("There is already a room in that direction.");
+			} else {
+				var room = new Thing(['room'], [], worldThing);
+				location.connections[directObject.id] = room;
+				room.connections[directionIdOpposites[directObject.id]] = location;
+				user.parent = room;
+				user.send("Room dug! You're now in it.");
+			}
+		}
 	}
+});
+
+_.each(directionThings, function(direction) {
+	addGlobalVerb(direction.simpleName(), function(parseResult, directObject, user) {
+		var location = user.parent;
+		if (location.parent != worldThing) {
+			user.send("You must be in a room first.");
+		} else {
+			if (!location.connections[direction.id]) {
+				user.send("There is no room in that direction");
+			} else {
+				user.parent = location.connections[direction.id];
+			}
+		}
+	})
 });
 
 function handleGlobal(parseResult, directObject, user) {
@@ -248,3 +287,4 @@ function handleGlobal(parseResult, directObject, user) {
 function formatNounPhrase(phrase) {
 	return phrase.adjectives.join(' ') + ' ' + phrase.noun;
 }
+
