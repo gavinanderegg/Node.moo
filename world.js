@@ -10,7 +10,7 @@ function Thing(names, adjectives) {
 	this.verbs = {};
 
 	allObjects.push(this);
-}
+};
 
 Thing.prototype.matches = function(phrase) {
 	if (this.names.indexOf(phrase.noun) == -1) {
@@ -25,7 +25,7 @@ Thing.prototype.matches = function(phrase) {
 		}
 	});
 	return adjectivesOk;
-}
+};
 
 Thing.prototype.verboseName = function() {
 	var name = this.adjectives.join(' ') + ' ' + this.names[0];
@@ -33,15 +33,15 @@ Thing.prototype.verboseName = function() {
 		name = name + ' (' + this.names.slice(1).join(', ') + ')';
 	}
 	return name;
-}
+};
 
 Thing.prototype.contents = function() {
 	return _.filter(allObjects, function (o) { return o.parent = this; });
-}
+};
 
 Thing.prototype.setVerbHandler = function(name, handler) {
 	this.verbs[name] = _.bind(handler, this);
-}
+};
 
 _.each(['eat', 'take', 'give'], function(v) {
 	parse.addVerb(v);
@@ -62,15 +62,15 @@ apple.setVerbHandler('eat', function(parseResult, reply) {
 	reply("you eat the " + this.names[0]);
 });
 
-var apple = new Thing(['apple'], ['blue']);
-apple.parent = theRoom;
-apple.setVerbHandler('eat', function(parseResult, reply) {
+var apple2 = new Thing(['apple'], ['blue']);
+apple2.parent = theRoom;
+apple2.setVerbHandler('eat', function(parseResult, reply) {
 	reply("you eat the " + this.names[0]);
 });
 
 
 function matchingThings(room, phrase) {
-	var result = []
+	var result = [];
 	_.each(room.contents(), function(o) {
 		if (o.matches(phrase)) {
 			result.push(o);
@@ -107,14 +107,19 @@ exports.handle = function(data, reply) {
 			}
 		}
 	});
-}
+};
+
+exports.addUser = function(data) {
+	var newUser = new Thing(['user', data.name], ['newb']);
+	newUser.parent = theRoom;
+};
 
 function handleGlobal(parseResult, directObject, reply) {
 	if(parseResult.verb == 'say') {
 		reply('You say "'  + parseResult.text + '".');
 	}
-}
+};
 
 function formatNounPhrase(phrase) {
 	return phrase.adjectives.join(' ') + ' ' + phrase.noun;
-}
+};
