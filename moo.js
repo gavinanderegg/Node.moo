@@ -26,13 +26,13 @@ io.sockets.on('connection', function (socket) {
 			'username': data
 		});
 		
+		world.addUser(data, socket);
+		
 		socket.emit('newuser', 'connected');
 	});
 	
-	
-	
 	socket.on('message', function (data) {
 		socket.emit('message', '>> ' + data);
-		world.handle(data, function(text) { socket.emit('message', text)});
+		world.handle(data, function(text) { socket.emit('message', text); });
 	});
 });
