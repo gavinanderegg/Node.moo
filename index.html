@@ -68,11 +68,9 @@
 
 					var message = $('#user-input').val();
 
-					if(message){
-
+					if(message) {
 						socket.emit('message', message);
-
-
+					}
 				}
 
 				return false;
