@@ -112,7 +112,7 @@ var up = new Thing(['up', 'u'], [], worldThing);
 var down = new Thing(['down', 'd'], [], worldThing);
 var directionThings = [north, east, south, west, up, down];
 
-var directionIdOpposites = {}
+var directionIdOpposites = {};
 directionIdOpposites[north.id] = south.id;
 directionIdOpposites[south.id] = north.id;
 directionIdOpposites[east.id] = west.id;
@@ -181,7 +181,7 @@ exports.handle = function(data, user) {
 			user.send("error: " + error);
 		} else {
 			if (parseResult.object) {
-				var filter = globalVerbsFilter[parseResult.verb]
+				var filter = globalVerbsFilter[parseResult.verb];
 				var thing = findThing(user, parseResult.object, user, filter);
 				if (thing) {
 					var handler = thing.verbs[parseResult.verb];
@@ -278,13 +278,17 @@ addGlobalVerb(['look', 'l'], function(parseResult, directObject, user) {
 
 
 addGlobalVerb(['edit', '!'], function(parseResult, directObject, user) {
-	// pop up editor
+	user.socket.emit('edit', 'go'); // pop up editor
 	
 	// collect input
-	
-	directObject.verbs[parseResult.newVerb] = function() {
+	user.socket.on('edit', function(data) {
 		// make the input go here somehow
-	};
+		directObject.verbs[parseResult.newVerb] = function(parseResult, directObject, user) {
+			eval(data);
+		};
+		
+		user.socket.emit('editSuccess', 'go');
+	});
 });
 
 addGlobalVerb(['create'], function(parseResult, directObject, user) {
@@ -310,7 +314,7 @@ addGlobalVerb(['inventory'], function(parseResult, directObject, user) {
 addGlobalVerb(['take'], function(parseResult, directObject, user) {
 
 	if(directObject != user && directObject.parent == user.parent ){
-		directObject.parent = user
+		directObject.parent = user;
 
 		user.send('You have taken: '+directObject.simpleName());
 		user.sendToOthers(user.simpleName() + " took a " + directObject.simpleName() + '.');
@@ -321,7 +325,7 @@ addGlobalVerb(['take'], function(parseResult, directObject, user) {
 addGlobalVerb(['drop'], function(parseResult, directObject, user) {
 
 	if( directObject.parent == user ){
-		directObject.parent = user.parent
+		directObject.parent = user.parent;
 
 		user.send('You have dropped: '+directObject.simpleName());
 		user.sendToOthers(user.simpleName() + " dropped a " + directObject.simpleName() + '.');
@@ -379,19 +383,19 @@ addGlobalVerb(['dig'], function(parseResult, directObject, user) {
 });
 
 function doGo(direction, user) {
-		var location = user.parent;
-		if (location.parent != worldThing) {
-			user.send("You must be in a room first.");
+	var location = user.parent;
+	if (location.parent != worldThing) {
+		user.send("You must be in a room first.");
+	} else {
+		if (!location.connections[direction.id]) {
+			user.send("There is no room in that direction");
 		} else {
-			if (!location.connections[direction.id]) {
-				user.send("There is no room in that direction");
-			} else {
-			user.sendToOthers(user.simpleName() + " goes " + direction.simpleName() + '.');
-				user.parent = location.connections[direction.id];
-			user.sendToOthers(user.simpleName() + " arrives." + '.');
-				doLook(user);
-			}
+		user.sendToOthers(user.simpleName() + " goes " + direction.simpleName() + '.');
+			user.parent = location.connections[direction.id];
+		user.sendToOthers(user.simpleName() + " arrives." + '.');
+			doLook(user);
 		}
+	}
 }
 
 _.each(directionThings, function(direction) {
