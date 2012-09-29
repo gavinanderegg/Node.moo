@@ -1,73 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Bootstrap, from Twitter</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
+<head>
+<meta charset="utf-8">
+<title>Bootstrap, from Twitter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
 
-    <!-- Le styles -->
-    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap-combined.min.css" rel="stylesheet">
-    <style type="text/css">
-     	body {
-        	padding-top: 60px;
-        	padding-bottom: 40px;
-      	}
-    </style>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<!-- Le styles -->
+<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap-combined.min.css" rel="stylesheet">
+<style type="text/css">
+	body {
+		padding-top: 60px;
+		padding-bottom: 40px;
+	}
+</style>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 
-    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-  </head>
+<!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+  	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+</head>
 
-  <body>
+<body>
 
-  	<div class="container" >
+	<div class="container">
+		<div class="row">
+			<form action="/send/" id="userForm">
+				<input type="text" name="username" id="usernameInput" placeholder="enter your name" />
+				<input id="usernameSubmit" type="submit" value="Send" />
+			</form>
+		</div>
+		<div class="row">
+			<form action="/send/" id="messageForm">
+				<div id="log" style="height:400px; width:600px; overflow-y:scroll; background-color:black; color:#aaa;">
+				</div>
+				<input type="text" name="input" id="user-input" placeholder="input..." />
+				<input type="submit" value="Send" />
 
-    	<div class="row">
-    		<form action="/send/">
+			</form>
 
-	    		<div id="log" style="height:200px; width:200px; overflow-y:scroll; background-color:black; color:#aaa;">
-	    		</div>
-	    		<input type="text" name="input" id="user-input" placeholder="input..." />
-	    		<input type="submit" value="Send" />
+		</div>
 
-    		</form>
+	</div>
 
-    	</div>
-
-    </div>
-
-    <!-- Le javascript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/js/bootstrap.min.js"></script>
-    <script src="socket.io.js"></script>
-    <script>
+	<!-- Le javascript
+	================================================== -->
+	<!-- Placed at the end of the document so the pages load faster -->
+	<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/js/bootstrap.min.js"></script>
+	<script src="socket.io.js"></script>
+	<script>
 		var socket;
 		var output;
 		
 		function connectSockets() {
 			socket = io.connect('http://localhost:3000');
-
-
-		 	socket.on('message', function (data){
-		 		$('#log').append('<br/>'+data);
-		 	});
-
+			
+			
+			
+			socket.on('message', function (data){
+				$('#log').append('<br/>'+data);
+			});
 		}
 
 		$(function() {
 			//output = document.getElementById("log");
 			connectSockets();
-
-			$('form').submit(function(){
-
+			
+			$('form#userForm').submit(function(){
 				if(socket){
+					var message = $('#user-input').val();
 
+					if(message) {
+						socket.emit('message', message);
+					}
+				}
+
+				return false;
+			});
+			
+			$('form#messageForm').submit(function(){
+				if(socket){
 					var message = $('#user-input').val();
 
 					if(message) {
@@ -80,7 +94,7 @@
 
 		});
 
-    </script>
+	</script>
 
-  </body>
+</body>
 </html>

@@ -19,7 +19,15 @@ io = io.listen(server);
 io.sockets.on('connection', function (socket) {
 	console.log('Socket connected');
 	
-	socket.emit('message', 'hello!');
+	socket.on('newuser', function (data) {
+		socket.emit('message', 'hello, ' + data + '!');
+		
+		 client.append({
+			'username': data
+		});
+	});
+	
+	
 	
 	socket.on('message', function (data) {
 		socket.emit('message', data);
