@@ -90,6 +90,9 @@
 						commandHistory.push(message);
 						currentHistory = false;
 						$('#user-input').val('');
+
+						var log = document.getElementById("log");
+						log.scrollTop = log.scrollHeight;
 						socket.emit('message', message);
 					}
 
