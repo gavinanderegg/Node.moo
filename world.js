@@ -178,7 +178,14 @@ addGlobalVerb('look', function(parseResult, directObject, user) {
 	
 	user.send(place.desc);
 	user.send('Also here:');
-	user.send(place.contents());
+	
+	var objList = '';
+	_.each(place.contents(), function(i) {
+		objList += i.simpleName() + ', ';
+	});
+	objList = objList.slice(0, objList.length -3);
+	
+	user.send(objList);
 });
 
 addGlobalVerb('inspect', function(parseResult, directObject, user) {
