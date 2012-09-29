@@ -57,7 +57,7 @@ Thing.prototype.setVerbHandler = function(name, handler) {
 
 Thing.prototype.description = function() {
 	return this.verboseName();
-}
+};
 
 Thing.prototype.send = function(text) {
 	if(this.socket) {
