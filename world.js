@@ -118,9 +118,10 @@ exports.handle = function(data, reply) {
 	});
 };
 
-exports.addUser = function(data) {
+exports.addUser = function(data, socket) {
 	var newUser = new Thing(['user', data.name], ['newb']);
 	newUser.parent = theRoom;
+	newUser.socket = socket;
 };
 
 var userVerbs = {};
