@@ -151,6 +151,15 @@ addGlobalVerb('look', function(parseResult, directObject, user) {
 	user.send("You look around");
 });
 
+
+addGlobalVerb('create', function(parseResult, directObject, user) {
+	var newThing = new Thing(parseResult.thingName, parseResult.adjectives);
+	newThing.parent = user.parent;
+
+	//user.send("You create a new thing: "+newThing.name);
+
+});
+
 addGlobalVerb('inspect', function(parseResult, directObject, user) {
 	if (!directObject) {
 		user.send("Inspect what?");
