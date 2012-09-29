@@ -57,7 +57,7 @@ Thing.prototype.setVerbHandler = function(name, handler) {
 
 Thing.prototype.description = function() {
 	return this.verboseName();
-}
+};
 
 var theRoom = new Thing(['house'], ['']);
 var apple = new Thing(['apple'], ['red']);
