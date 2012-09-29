@@ -53,6 +53,8 @@
 	<script>
 		var socket;
 		var output;
+		var commandHistory = Array();
+		var currentHistory = false;
 		
 		function connectSockets() {
 			socket = io.connect('http://localhost:3000');
@@ -84,12 +86,30 @@
 				if(socket){
 					var message = $('#user-input').val();
 
-					if(message) {
+					if(message){
+						commandHistory.push(message);
+						currentHistory = false;
+						$('#user-input').val('');
 						socket.emit('message', message);
 					}
+
 				}
 
 				return false;
+			});
+
+			$("#user-input").keyup(function(e){
+				//console.log(e);
+				if(e.keyCode == 38 && commandHistory.length){
+					if(currentHistory == false || currentHistory == 0)
+						currentHistory = commandHistory.length - 1;
+					else
+						currentHistory -= 1;
+
+					$('#user-input').val(commandHistory[currentHistory]);
+				}
+
+					//alert();
 			});
 
 		});
