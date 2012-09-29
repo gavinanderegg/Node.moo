@@ -1,5 +1,6 @@
 var parse = require('./parse');
 var _ = require('underscore');
+var sys = require('sys');
 
 var allObjects = [];
 
@@ -262,21 +263,18 @@ addGlobalVerb(['look', 'l'], function(parseResult, directObject, user) {
 
 
 addGlobalVerb(['edit', '!'], function(parseResult, directObject, user) {
-	// edit eat apple
+	// pop up editor
 	
-	// Create an editor, and wait for the result. Deal with that stuff
-	// - later
+	// collect input
 	
-	// - 
-	
-	console.log(' ------ ' + parseResult);
-	
-	// directObject.verbs[]
+	directObject.verbs[parseResult.newVerb] = function() {
+		// make the input go here somehow
+	};
 });
 
 addGlobalVerb(['create'], function(parseResult, directObject, user) {
 	var newThing = new Thing(parseResult.thingName, parseResult.adjectives, user);
-	user.send("You created a: "+newThing.simpleName());
+	user.send("You created a: " + newThing.simpleName());
 	user.sendToOthers(user.simpleName() + " created a " + newThing.simpleName());
 });
 
@@ -356,25 +354,25 @@ addGlobalVerb(['dig'], function(parseResult, directObject, user) {
 				user.parent = room;
 				user.send("Room dug! You're now in it.");
 				doLook(user);
-			}
+	}
 		}
 	}
 });
 
 function doGo(direction, user) {
-	var location = user.parent;
-	if (location.parent != worldThing) {
-		user.send("You must be in a room first.");
-	} else {
-		if (!location.connections[direction.id]) {
-			user.send("There is no room in that direction");
+		var location = user.parent;
+		if (location.parent != worldThing) {
+			user.send("You must be in a room first.");
 		} else {
+			if (!location.connections[direction.id]) {
+				user.send("There is no room in that direction");
+			} else {
 			user.sendToOthers(user.simpleName() + " goes " + direction.simpleName());
-			user.parent = location.connections[direction.id];
+				user.parent = location.connections[direction.id];
 			user.sendToOthers(user.simpleName() + " arrives.");
-			doLook(user);
+				doLook(user);
+			}
 		}
-	}
 }
 
 _.each(directionThings, function(direction) {
