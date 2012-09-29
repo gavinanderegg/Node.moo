@@ -193,7 +193,7 @@ addGlobalVerb('create', function(parseResult, directObject, user) {
 	var newThing = new Thing(parseResult.thingName, parseResult.adjectives);
 	newThing.parent = user.parent;
 
-	//user.send("You create a new thing: "+newThing.name);
+	user.send("You create a new thing: "+newThing.simpleName());
 
 });
 
