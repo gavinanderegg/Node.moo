@@ -55,6 +55,10 @@ Thing.prototype.setVerbHandler = function(name, handler) {
 	parse.addVerb(name);
 };
 
+Thing.prototype.description = function() {
+	return this.verboseName();
+}
+
 var theRoom = new Thing(['house'], ['']);
 var apple = new Thing(['apple'], ['red']);
 apple.parent = theRoom;
@@ -123,22 +127,35 @@ exports.addUser = function(data) {
 	newUser.parent = theRoom;
 };
 
-var userVerbs = {};
+var globalVerbs = {};
+function addGlobalVerb(name, callback) {
+	parse.addVerb(name);
+	globalVerbs[name] = callback;
+}
 
-userVerbs.say = function(parseResult, directObject, reply) {
+addGlobalVerb('say', function(parseResult, directObject, reply) {
 	reply('You say "'  + parseResult.text + '".');
-};
+});
 
-userVerbs.look = function(parseResult, directObject, reply) {
+addGlobalVerb('look', function(parseResult, directObject, reply) {
 	reply("You look around");
-};
+});
+
+addGlobalVerb('inspect', function(parseResult, directObject, reply) {
+	if (!directObject) {
+		reply("Inspect what?");
+	} else {
+		reply(directObject.description());
+	}
+});
 
 function handleGlobal(parseResult, directObject, reply) {
-	if(parseResult.verb == 'say') {
-		reply('You say "'  + parseResult.text + '".');
+	var handler = globalVerbs[parseResult.verb];
+	if (handler) {
+		handler(parseResult, directObject, reply);
 	}
-};
+}
 
 function formatNounPhrase(phrase) {
 	return phrase.adjectives.join(' ') + ' ' + phrase.noun;
-};
+}
