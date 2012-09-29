@@ -83,7 +83,7 @@ function parseSentence(toks) {
 	var complements = [];
 	
 	if (verb == 'edit' || verb == '!') {
-		var verb = parseVerb();
+		var verb = consumeToken();
 		var objectPhrase = parseNounPhrase();
 		
 		return {'verb': 'edit', 'object': objectPhrase, 'newVerb': verb};

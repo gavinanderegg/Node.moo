@@ -1,5 +1,6 @@
 var parse = require('./parse');
 var _ = require('underscore');
+var sys = require('sys');
 
 var allObjects = [];
 
@@ -227,22 +228,18 @@ addGlobalVerb(['look', 'l'], function(parseResult, directObject, user) {
 
 
 addGlobalVerb(['edit', '!'], function(parseResult, directObject, user) {
-	// edit eat apple
+	// pop up editor
 	
-	// Create an editor, and wait for the result. Deal with that stuff
-	// - later
+	// collect input
 	
-	// - 
-	
-	console.log(' ------ ' + parseResult);
-	
-	// directObject.verbs[]
+	directObject.verbs[parseResult.newVerb] = function() {
+		// make the input go here somehow
+	};
 });
 
 addGlobalVerb(['create'], function(parseResult, directObject, user) {
 	var newThing = new Thing(parseResult.thingName, parseResult.adjectives, user);
-	user.send("You created a: "+newThing.simpleName());
-
+	user.send("You created a: " + newThing.simpleName());
 });
 
 addGlobalVerb(['inventory'], function(parseResult, directObject, user) {
