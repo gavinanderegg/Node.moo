@@ -8,7 +8,7 @@
     <meta name="author" content="">
 
     <!-- Le styles -->
-    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap-combined.min.css" rel="stylesheet">
     <style type="text/css">
      	body {
         	padding-top: 60px;
@@ -44,10 +44,12 @@
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/js/bootstrap.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/js/bootstrap.min.js"></script>
+    <script src="socket.io.js"></script>
     <script>
 
 		var wsUri = "ws://localhost:3000";
+		var socket;
 		var output;
 
 
@@ -55,69 +57,34 @@
 
 		function connectSockets() {
 
-			var socket = io.connect('http://localhost:3000');
-		 	socket.on('news', function (data) {
-		    	console.log(data);
-		    	socket.emit('my other event', { my: 'data' });
-			});
+			socket = io.connect('http://localhost:3000');
 
-			/*var socket = io.connect('http://localhost/');
-			socket.on('connect', onConnect);
 
-			websocket = new WebSocket(wsUri);
+		 	socket.on('message', function (data){ console.log(data); });
 
-			websocket.onopen = function(evt) { onOpen(evt) };
-
-			websocket.onclose = function(evt) { onClose(evt) };
-
-			websocket.onmessage = function(evt) { onMessage(evt) };
-
-			websocket.onerror = function(evt) { onError(evt) };*/
 		}
 
-		/*function onConnect(evt) {
-			writeToLog("CONNECTED");
-		}
-
-		function onClose(evt) {
-			writeToLog("DISCONNECTED"); 
-		}
-
-		function onMessage(evt) {
-			writeToLog('<span style="color: blue;">RESPONSE: ' + evt.data+'</span>');
-			 websocket.close();
-		}  
-
-		function onError(evt) {
-			writeToLog('<span style="color: red;">ERROR:</span> ' + evt.data);
-		}
-
-		function doSend(message) {
-			writeToLog("SENT: " + message);  websocket.send(message);
-		}
-
-		function writeToLog(message) {
-			var pre = document.createElement("p");
-			pre.style.wordWrap = "break-word";
-			pre.innerHTML = message;
-			output.appendChild(pre);
-		}  */
+		
 
 		$(function(){
 
 			//output = document.getElementById("log");
 			connectSockets();
 
-			/*$('form').submit(function(){
-				var message = $('#user-input').val();
+			$('form').submit(function(){
 
+				if(socket){
 
-				if(message){
-					doSend(message);
+					var message = $('#user-input').val();
+
+					if(message){
+						socket.emit(message);
+					}
+
 				}
 
 				return false;
-			});*/
+			});
 
 		});
 
