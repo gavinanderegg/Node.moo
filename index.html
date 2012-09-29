@@ -27,16 +27,10 @@
 
 	<div class="container">
 		<div class="row">
-			<form action="/send/" id="userForm">
-				<input type="text" name="username" id="usernameInput" placeholder="enter your name" />
-				<input id="usernameSubmit" type="submit" value="Send" />
-			</form>
-		</div>
-		<div class="row">
 			<form action="/send/" id="messageForm">
 				<div id="log" style="height:400px; width:600px; overflow-y:scroll; background-color:black; color:#aaa;">
 				</div>
-				<input type="text" name="input" id="user-input" placeholder="input..." />
+				<input type="text" name="input" id="userInput" placeholder="Enter your name...." />
 				<input type="submit" value="Send" />
 
 			</form>
@@ -55,6 +49,7 @@
 		var output;
 		var commandHistory = Array();
 		var currentHistory = false;
+		var signedin = false;
 		
 		function connectSockets() {
 			socket = io.connect('http://localhost:3000');
@@ -63,7 +58,9 @@
 				console.log('------- Connected!');
 				
 				if (data == 'connected') {
-					
+					signedin = true;
+					$('#userInput').attr('placeholder', 'Enter a Command...');
+					$('#userInput').val('');
 				}
 			});
 			
@@ -76,30 +73,26 @@
 			//output = document.getElementById("log");
 			connectSockets();
 			
-			$('form#userForm').submit(function(){
-				if(socket){
-					var message = $('#usernameInput').val();
-
-					if(message) {
-						socket.emit('newuser', message);
-					}
-				}
-
-				return false;
-			});
-			
 			$('form#messageForm').submit(function(){
 				if(socket){
-					var message = $('#user-input').val();
+					if(signedin){
+						var message = $('#userInput').val();
 
-					if(message){
-						commandHistory.push(message);
-						currentHistory = false;
-						$('#user-input').val('');
+						if(message){
+							commandHistory.push(message);
+							currentHistory = false;
+							$('#userInput').val('');
 
-						var log = document.getElementById("log");
-						log.scrollTop = log.scrollHeight;
-						socket.emit('message', message);
+							var log = document.getElementById("log");
+							log.scrollTop = log.scrollHeight;
+							socket.emit('message', message);
+						}
+					}else{
+						var message = $('#userInput').val();
+
+						if(message) {
+							socket.emit('newuser', message);
+						}
 					}
 
 				}
@@ -107,7 +100,7 @@
 				return false;
 			});
 
-			$("#user-input").keyup(function(e){
+			$("#userInput").keyup(function(e){
 				//console.log(e);
 				if(e.keyCode == 38 && commandHistory.length){
 					if(currentHistory == false || currentHistory == 0)
@@ -115,7 +108,7 @@
 					else
 						currentHistory -= 1;
 
-					$('#user-input').val(commandHistory[currentHistory]);
+					$('#userInput').val(commandHistory[currentHistory]);
 				}
 
 					//alert();
