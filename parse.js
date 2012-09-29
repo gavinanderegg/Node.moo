@@ -83,12 +83,12 @@ function parseSentence(toks) {
 	} else if ( currentToken() == 'create' ){
 		var thingName = '';
 		var adjectives = Array();
-		thingName = tokens.slice(tokens.length-1);
+		thingName = casedTokens.slice(tokens.length-1);
 		
-		tokens.shift();
-		tokens.pop();
+		casedTokens.shift();
+		casedTokens.pop();
 		
-		var adjectives = tokens;
+		var adjectives = casedTokens;
 		return {'verb':'create', 'thingName': thingName, 'adjectives': adjectives};
 	}
 	

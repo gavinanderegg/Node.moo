@@ -29,7 +29,14 @@ function Thing(names, adjectives, parent) {
 };
 
 Thing.prototype.matches = function(phrase) {
-	if (this.names.indexOf(phrase.noun) == -1) {
+	var found = false;
+	_.each(this.names, function (n) { 
+		if(phrase.noun.toLowerCase() == n.toLowerCase()) {
+			found = true;
+		}
+	});
+
+	if (!found) {
 		return false;
 	}
 
