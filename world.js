@@ -111,23 +111,23 @@ var up = new Thing(['up', 'u'], [], worldThing);
 var down = new Thing(['down', 'd'], [], worldThing);
 var directionThings = [north, east, south, west, up, down];
 
-function matchingThings(room, phrase) {
+function matchingThings(room, phrase, user, filter) {
 	var result = [];
 	_.each(room.contents(), function(o) {
-		if (o.matches(phrase)) {
+		if (o.matches(phrase) && (!filter || filter(phrase, o, user))) {
 			result.push(o);
 		}
 	});
 
 	if (room.parent) {
-		result = result.concat(matchingThings(room.parent, phrase));
+		result = result.concat(matchingThings(room.parent, phrase, user, filter));
 	}
 
 	return result;
 }
 
-function findThing(room, phrase, user) {
-	var things = matchingThings(theRoom, phrase);
+function findThing(room, phrase, user, filter) {
+	var things = matchingThings(room, phrase, user, filter);
 	if (things.length == 0) {
 		user.send("I don't see any " + formatNounPhrase(phrase));
 		return false;
@@ -149,7 +149,8 @@ exports.handle = function(data, user) {
 			user.send("error: " + error);
 		} else {
 			if (parseResult.object) {
-				var thing = findThing(theRoom, parseResult.object, user);
+				var filter = globalVerbsFilter[parseResult.verb]
+				var thing = findThing(user, parseResult.object, user, filter);
 				if (thing) {
 					var handler = thing.verbs[parseResult.verb];
 					if (handler) {
@@ -173,9 +174,12 @@ exports.addUser = function(name, socket) {
 };
 
 var globalVerbs = {};
-function addGlobalVerb(name, callback) {
+var globalVerbsFilter = {};
+function addGlobalVerb(name, callback, filter) {
 	parse.addVerb(name);
 	globalVerbs[name] = callback;
+	if(filter)
+		globalVerbsFilter[name] = filter
 }
 
 addGlobalVerb('say', function(parseResult, directObject, user) {
@@ -206,9 +210,47 @@ addGlobalVerb('look', function(parseResult, directObject, user) {
 
 addGlobalVerb('create', function(parseResult, directObject, user) {
 	var newThing = new Thing(parseResult.thingName, parseResult.adjectives, user);
-
 	user.send("You created a: "+newThing.simpleName());
 
+});
+
+addGlobalVerb('inventory', function(parseResult, directObject, user) {
+
+	user.send('You have:');
+	
+	var objList = '';
+	_.each(user.contents(), function(i) {
+		objList += i.simpleName() + ', ';
+	});
+	objList = objList.slice(0, objList.length -2);
+	
+	user.send(objList);
+
+});
+
+addGlobalVerb('take', function(parseResult, directObject, user) {
+
+	if(directObject != user && directObject.parent == user.parent ){
+		directObject.parent = user
+
+		user.send('You have taken: '+directObject.simpleName());
+
+	}
+
+});
+
+
+addGlobalVerb('drop', function(parseResult, directObject, user) {
+
+	if( directObject.parent == user ){
+		directObject.parent = user.parent
+
+		user.send('You have dropped: '+directObject.simpleName());
+
+	}
+
+}, function(phrase, object, user) { 
+	return object.parent == user;
 });
 
 addGlobalVerb('inspect', function(parseResult, directObject, user) {
