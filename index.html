@@ -47,16 +47,10 @@
     <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/js/bootstrap.min.js"></script>
     <script src="socket.io.js"></script>
     <script>
-
-		var wsUri = "ws://localhost:3000";
 		var socket;
 		var output;
-
-
-
-
+		
 		function connectSockets() {
-
 			socket = io.connect('http://localhost:3000');
 
 
@@ -64,10 +58,7 @@
 
 		}
 
-		
-
-		$(function(){
-
+		$(function() {
 			//output = document.getElementById("log");
 			connectSockets();
 
@@ -80,7 +71,7 @@
 					if(message){
 
 						socket.emit('message', message);
-					}
+
 
 				}
 
