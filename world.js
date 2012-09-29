@@ -183,12 +183,14 @@ exports.addUser = function(name, socket) {
 };
 
 var globalVerbs = {};
-function addGlobalVerb(name, callback) {
-	parse.addVerb(name);
-	globalVerbs[name] = callback;
-}
+function addGlobalVerb(names, callback) {
+	_.each(names, function(name) {
+		parse.addVerb(name);
+		globalVerbs[name] = callback;
+	});
+};
 
-addGlobalVerb('say', function(parseResult, directObject, user) {
+addGlobalVerb(['say', 's'], function(parseResult, directObject, user) {
 	var text = parseResult.text.trim();
 	var last = text[text.length - 1];
 	if (last != '.' && last != '?' && last != '!') {
@@ -207,7 +209,7 @@ function doLook(user) {
 	var objList = '';
 	_.each(place.contents(), function(i) {
 		if (i != user) {
-			objList += i.simpleName() + ', ';
+		objList += i.simpleName() + ', ';
 		}
 	});
 	objList = objList.slice(0, objList.length -2);
@@ -215,16 +217,15 @@ function doLook(user) {
 	user.send(objList);
 }
 
-addGlobalVerb('look', function(parseResult, directObject, user) {
+addGlobalVerb(['look', 'l'], function(parseResult, directObject, user) {
 	doLook(user);
 });
 
 
 addGlobalVerb('create', function(parseResult, directObject, user) {
-	var newThing = new Thing(parseResult.thingName, parseResult.adjectives);
-	newThing.parent = user.parent;
+	var newThing = new Thing(parseResult.thingName, parseResult.adjectives, user);
 
-	user.send("You create a new thing: "+newThing.simpleName());
+	user.send("You created a: "+newThing.simpleName());
 
 });
 
@@ -264,7 +265,7 @@ addGlobalVerb('dig', function(parseResult, directObject, user) {
 				user.parent = room;
 				user.send("Room dug! You're now in it.");
 				doLook(user);
-			}
+	}
 		}
 	}
 });
