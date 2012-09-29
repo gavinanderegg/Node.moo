@@ -94,17 +94,8 @@ Thing.prototype.sendToOthers = function(text) {
 
 var worldThing = new Thing(['world'], []);
 
-var theRoom = new Thing(['house'], [''], worldThing);
-
-var apple = new Thing(['apple'], ['red'], theRoom);
-apple.setVerbHandler('eat', function(parseResult, user) {
-	user.send("you eat the " + this.names[0]);
-});
-
-var apple2 = new Thing(['apple'], ['blue'], theRoom);
-apple2.setVerbHandler('eat', function(parseResult, user) {
-	user.send("you eat the " + this.names[0]);
-});
+var theRoom = new Thing(['Nexus'], [''], worldThing);
+theRoom.desc = 'A nexus of infinite possibility.';
 
 var north = new Thing(['north', 'n'], [], worldThing);
 var east = new Thing(['east', 'e'], [], worldThing);
@@ -204,6 +195,8 @@ exports.addUser = function(name, socket) {
 	var newUser = new Thing([name, 'user'], ['newb']);
 	newUser.parent = theRoom;
 	newUser.socket = socket;
+	newUser.sendToOthers(name + " has appeared from thin air.");
+	doLook(newUser);
 	return newUser;
 };
 
@@ -231,8 +224,9 @@ addGlobalVerb(['say', 's'], function(parseResult, directObject, user) {
 function doLook(user) {
 	var place = user.parent;
 	
+	user.send('You are in the ' + place.simpleName());
 	user.send(place.desc);
-	user.send('Also here:');
+	var contents = place.contents();
 	
 	var objList = '';
 	_.each(place.contents(), function(i) {
@@ -242,10 +236,12 @@ function doLook(user) {
 	});
 	objList = objList.slice(0, objList.length -2);
 	
-	user.send(objList);
+	if (objList) {
+		user.send('Also here:');
+		user.send(objList);
+	}
 
 
-	user.send('You can go:');
 
 	var directionList = '';
 	_.each(user.parent.connections, function(object, key) {
@@ -254,7 +250,9 @@ function doLook(user) {
 	});
 	directionList = directionList.slice(0, directionList.length -2);
 
-	user.send(directionList);
+	if (directionList) {
+		user.send('You can go: ' + directionList);
+	}
 }
 
 addGlobalVerb(['look', 'l'], function(parseResult, directObject, user) {
@@ -285,7 +283,7 @@ addGlobalVerb(['edit', '!'], function(parseResult, directObject, user) {
 addGlobalVerb(['create'], function(parseResult, directObject, user) {
 	var newThing = new Thing(parseResult.thingName, parseResult.adjectives, user);
 	user.send("You created a: " + newThing.simpleName());
-	user.sendToOthers(user.simpleName() + " created a " + newThing.simpleName());
+	user.sendToOthers(user.simpleName() + " created a " + newThing.simpleName() + '.');
 });
 
 addGlobalVerb(['inventory'], function(parseResult, directObject, user) {
@@ -308,7 +306,7 @@ addGlobalVerb(['take'], function(parseResult, directObject, user) {
 		directObject.parent = user
 
 		user.send('You have taken: '+directObject.simpleName());
-		user.sendToOthers(user.simpleName() + " took a " + directObject.simpleName());
+		user.sendToOthers(user.simpleName() + " took a " + directObject.simpleName() + '.');
 	}
 });
 
@@ -319,7 +317,7 @@ addGlobalVerb(['drop'], function(parseResult, directObject, user) {
 		directObject.parent = user.parent
 
 		user.send('You have dropped: '+directObject.simpleName());
-		user.sendToOthers(user.simpleName() + " dropped a " + directObject.simpleName());
+		user.sendToOthers(user.simpleName() + " dropped a " + directObject.simpleName() + '.');
 	}
 
 }, function(phrase, object, user) { 
@@ -356,15 +354,19 @@ addGlobalVerb(['dig'], function(parseResult, directObject, user) {
 			if (location.connections[directObject.id]) {
 				user.send("There is already a room in that direction.");
 			} else {
-				var room = new Thing(['room'], [], worldThing);
+				var name = 'room';
+				if (parseResult.name) {
+					name = parseResult.name;
+				}
+				var room = new Thing([name], [], worldThing);
 				room.desc = 'A freshly dug room.';
 				location.connections[directObject.id] = room;
 				room.connections[directionIdOpposites[directObject.id]] = location;
-				user.sendToOthers(user.simpleName() + " digs " + directObject.simpleName());
+				user.sendToOthers(user.simpleName() + " digs " + directObject.simpleName() + '.');
 				user.parent = room;
 				user.send("Room dug! You're now in it.");
 				doLook(user);
-	}
+			}
 		}
 	}
 });
@@ -377,9 +379,9 @@ function doGo(direction, user) {
 			if (!location.connections[direction.id]) {
 				user.send("There is no room in that direction");
 			} else {
-			user.sendToOthers(user.simpleName() + " goes " + direction.simpleName());
+			user.sendToOthers(user.simpleName() + " goes " + direction.simpleName() + '.');
 				user.parent = location.connections[direction.id];
-			user.sendToOthers(user.simpleName() + " arrives.");
+			user.sendToOthers(user.simpleName() + " arrives." + '.');
 				doLook(user);
 			}
 		}

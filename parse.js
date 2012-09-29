@@ -22,15 +22,15 @@ exports.parse = function(string, callback) {
 }
 
 exports.addVerb = function(verb) {
-	verbs[verb] = true;
+	verbs[verb.toLowerCase()] = true;
 }
 
 exports.addAdjective = function(adjective) {
-    adjectives[adjective] = true;
+    adjectives[adjective.toLowerCase()] = true;
 }
 
 exports.addNoun = function(noun) {
-    nouns[noun] = true;
+    nouns[noun.toLowerCase()] = true;
 }
 
 function parseError(message) {
@@ -52,9 +52,13 @@ function tokensLeft() {
     return currentIndex < tokens.length;
 } 
 
-function consumeToken() {
+function consumeToken(cased) {
     currentIndex++;
-    return tokens[currentIndex-1];
+	if (cased) {
+		return casedTokens[currentIndex-1];
+	} else {
+		return tokens[currentIndex-1];
+	}
 }
 
 function remainingCasedText() {
@@ -86,8 +90,6 @@ function parseSentence(toks) {
 		
 		var adjectives = tokens;
 		return {'verb':'create', 'thingName': thingName, 'adjectives': adjectives};
-	} else if (currentToken() == 'create') {
-		
 	}
 	
 	var verb = parseVerb();
@@ -108,6 +110,18 @@ function parseSentence(toks) {
 		}
 		var rest = remainingCasedText();
 		return {'verb': verb, 'object': objectPhrase, 'text': rest};
+	}
+
+	if (verb == 'dig') {
+		var directionPhrase = parseNounPhrase();
+		if (currentToken() == 'to') {
+			consumeToken();
+		}
+		var name = null;
+		if (tokensLeft()) {
+			name = consumeToken(true);
+		}
+		return {'verb' : verb, 'object': directionPhrase, 'name' : name};
 	}
 	
     if(tokensLeft()) {

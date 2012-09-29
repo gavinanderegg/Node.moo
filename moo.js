@@ -22,7 +22,7 @@ io.sockets.on('connection', function (socket) {
 	var user = null;
 	
 	socket.on('newuser', function (data) {
-		socket.emit('message', 'hello, ' + data + '!');
+		socket.emit('message', 'Hello, ' + data + '!');
 		
 		 clients.push({
 			'username': data
