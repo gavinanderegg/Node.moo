@@ -9,15 +9,19 @@ var casedTokens = [];
 var currentIndex = 0;
 exports.parse = function(string, callback) {
     process.nextTick(function() {
-        tokens = string.toLowerCase().split(' ');
-		casedTokens = string.split(' ');
-        currentIndex = 0;
-        try {
-            var result = parseSentence();
-            callback(null, result);
-        } catch(error) {
-            callback(error, null);
-        }
+		try {
+			tokens = string.toLowerCase().split(' ');
+			casedTokens = string.split(' ');
+			currentIndex = 0;
+			try {
+				var result = parseSentence();
+				callback(null, result);
+			} catch(error) {
+				callback(error, null);
+			}
+		} catch (err) {
+			console.error(err);
+		}
     });
 }
 
