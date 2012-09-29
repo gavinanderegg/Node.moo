@@ -22,6 +22,10 @@ server = http.createServer(function(request, response) {
 io = io.listen(server);
 
 io.sockets.on('connection', function (socket) {
+	console.log('Socket connected');
+	
+	socket.emit('message', 'hello!');
+	
 	socket.on('message', function (data) {
 		socket.emit('message', data);
 	});
