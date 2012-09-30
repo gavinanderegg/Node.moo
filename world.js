@@ -401,7 +401,7 @@ function doGo(direction, user) {
 _.each(directionThings, function(direction) {
 	addGlobalVerb([direction.simpleName()], function(parseResult, directObject, user) {
 		doGo(direction, user);
-	})
+	});
 });
 
 addGlobalVerb(['go', 'g'], function(parseResult, directObject, user) {
