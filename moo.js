@@ -35,6 +35,10 @@ io.sockets.on('connection', function (socket) {
 	
 	socket.on('message', function (data) {
 		socket.emit('message', '<br><b>>> ' + data + '</b>');
-		world.handle(data, user);
+		try {
+			world.handle(data, user);
+		} catch (err) {
+			console.error(err);
+		}
 	});
 });

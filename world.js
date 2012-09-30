@@ -186,7 +186,7 @@ exports.handle = function(data, user) {
 				if (thing) {
 					var handler = thing.verbs[parseResult.verb];
 					if (handler) {
-						handler(parseResult, user);
+						handler(parseResult, thing, user);
 					} else {
 						handleGlobal(parseResult, thing, user);
 					}
@@ -283,9 +283,9 @@ addGlobalVerb(['edit', '!'], function(parseResult, directObject, user) {
 	// collect input
 	user.socket.on('edit', function(data) {
 		// make the input go here somehow
-		directObject.verbs[parseResult.newVerb] = function(parseResult, directObject, user) {
+		directObject.setVerbHandler(parseResult.newVerb, function(parseResult, directObject, user) {
 			eval(data);
-		};
+		});
 		
 		user.socket.emit('editSuccess', 'go');
 	});
